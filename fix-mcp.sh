@@ -144,7 +144,7 @@ CONFIG_FILE="$SCRIPT_DIR/rider-mcp-config.json"
 
 cat > "$CONFIG_FILE" << EOF
 {
-  "mcpServers": {
+  "servers": {
     "jira": {
       "command": "$SCRIPT_DIR/jira-mcp-server/venv/bin/python",
       "args": ["$SCRIPT_DIR/jira-mcp-server/server.py"]

@@ -53,7 +53,7 @@ MCP_CONFIG="$SCRIPT_DIR/.vscode/mcp.json"
 
 cat > "$MCP_CONFIG" << EOF
 {
-  "mcpServers": {
+  "servers": {
     "jira": {
       "command": "$SCRIPT_DIR/jira-mcp-server/venv/bin/python",
       "args": ["$SCRIPT_DIR/jira-mcp-server/server.py"]

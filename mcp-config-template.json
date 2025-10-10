@@ -1,12 +1,12 @@
 {
-  "mcpServers": {
+  "servers": {
     "jira": {
-      "command": "node",
-      "args": ["/Users/srowe/projects/github-copilot/jira-mcp-server/dist/index.js"]
+      "command": "/Users/srowe/projects/github-copilot/jira-mcp-server/venv/bin/python",
+      "args": ["/Users/srowe/projects/github-copilot/jira-mcp-server/server.py"]
     },
     "confluence": {
-      "command": "node",
-      "args": ["/Users/srowe/projects/github-copilot/confluence-mcp-server/dist/index.js"],
+      "command": "/Users/srowe/projects/github-copilot/confluence-mcp-server/venv/bin/python",
+      "args": ["/Users/srowe/projects/github-copilot/confluence-mcp-server/server.py"],
       "env": {
         "CONFLUENCE_URL": "https://yourcompany.atlassian.net",
         "CONFLUENCE_EMAIL": "your.email@company.com",
@@ -14,8 +14,8 @@
       }
     },
     "azure-devops": {
-      "command": "node",
-      "args": ["/Users/srowe/projects/github-copilot/azure-mcp-server/dist/index.js"]
+      "command": "/Users/srowe/projects/github-copilot/azure-mcp-server/venv/bin/python",
+      "args": ["/Users/srowe/projects/github-copilot/azure-mcp-server/server.py"]
     }
   }
 }

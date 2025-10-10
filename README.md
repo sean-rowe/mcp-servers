@@ -160,7 +160,7 @@ brew install python-mcp
 **Using virtual environments (recommended):**
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "jira": {
       "command": "/full/path/to/jira-mcp-server/venv/bin/python",
       "args": ["/full/path/to/jira-mcp-server/server.py"]
@@ -194,7 +194,7 @@ brew install python-mcp
 **Using system Python (if you used pipx or global install):**
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "jira": {
       "command": "python3",
       "args": ["/full/path/to/jira-mcp-server/server.py"]

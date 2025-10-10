@@ -143,7 +143,7 @@ The `command` in Rider's MCP config points to the wrong Python or doesn't use th
 **Check your Rider configuration:**
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "jira": {
       "command": "/FULL/PATH/jira-mcp-server/venv/bin/python",
       "args": ["/FULL/PATH/jira-mcp-server/server.py"]
@@ -206,7 +206,7 @@ source ~/.zshrc
 Option 2 - Add to Rider config:
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "confluence": {
       "command": "/path/to/confluence-mcp-server/venv/bin/python",
       "args": ["/path/to/confluence-mcp-server/server.py"],
