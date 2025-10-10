@@ -21,12 +21,13 @@ if [ "$NODE_VERSION" -lt 18 ]; then
 fi
 echo "✅ Node.js $(node -v)"
 
-# Check npm
-if ! command -v npm &> /dev/null; then
-    echo "❌ npm is not installed"
+# Check pnpm
+if ! command -v pnpm &> /dev/null; then
+    echo "❌ pnpm is not installed. Please install pnpm 8+ first."
+    echo "   npm install -g pnpm"
     exit 1
 fi
-echo "✅ npm $(npm -v)"
+echo "✅ pnpm $(pnpm -v)"
 
 # Check acli (optional for Jira)
 if command -v acli &> /dev/null; then
@@ -58,23 +59,16 @@ echo ""
 echo "📦 Installing dependencies and building servers..."
 echo ""
 
-# Build Jira MCP Server
-echo "🔨 Building Jira MCP Server..."
-cd jira-mcp-server
-npm install
-npm run build
-echo "✅ Jira MCP Server built successfully"
-cd ..
+# Build all servers using pnpm workspace
+echo "🔨 Installing dependencies for all servers..."
+pnpm install
+echo "✅ Dependencies installed"
 
 echo ""
 
-# Build Azure DevOps MCP Server
-echo "🔨 Building Azure DevOps MCP Server..."
-cd azure-mcp-server
-npm install
-npm run build
-echo "✅ Azure DevOps MCP Server built successfully"
-cd ..
+echo "🔨 Building all servers..."
+pnpm run build:all
+echo "✅ All servers built successfully"
 
 echo ""
 echo "✨ Setup complete!"

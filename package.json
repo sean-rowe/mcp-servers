@@ -9,22 +9,17 @@
     "url": "git+https://github.com/sean-rowe/mcp-servers.git"
   },
   "scripts": {
-    "install:all": "npm install --prefix jira-mcp-server && npm install --prefix confluence-mcp-server && npm install --prefix azure-mcp-server",
-    "build:all": "npm run build --prefix jira-mcp-server && npm run build --prefix confluence-mcp-server && npm run build --prefix azure-mcp-server",
-    "build:jira": "npm run build --prefix jira-mcp-server",
-    "build:confluence": "npm run build --prefix confluence-mcp-server",
-    "build:azure": "npm run build --prefix azure-mcp-server",
-    "dev:jira": "npm run dev --prefix jira-mcp-server",
-    "dev:confluence": "npm run dev --prefix confluence-mcp-server",
-    "dev:azure": "npm run dev --prefix azure-mcp-server",
-    "clean": "rm -rf jira-mcp-server/node_modules jira-mcp-server/dist confluence-mcp-server/node_modules confluence-mcp-server/dist azure-mcp-server/node_modules azure-mcp-server/dist",
+    "install:all": "pnpm install",
+    "build:all": "pnpm -r run build",
+    "build:jira": "pnpm --filter jira-mcp-server run build",
+    "build:confluence": "pnpm --filter confluence-mcp-server run build",
+    "build:azure": "pnpm --filter azure-mcp-server run build",
+    "dev:jira": "pnpm --filter jira-mcp-server run dev",
+    "dev:confluence": "pnpm --filter confluence-mcp-server run dev",
+    "dev:azure": "pnpm --filter azure-mcp-server run dev",
+    "clean": "pnpm -r exec rm -rf node_modules dist",
     "setup": "./setup.sh"
   },
-  "workspaces": [
-    "jira-mcp-server",
-    "confluence-mcp-server",
-    "azure-mcp-server"
-  ],
   "keywords": [
     "mcp",
     "model-context-protocol",
@@ -37,6 +32,7 @@
     "developer-tools"
   ],
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
   }
 }

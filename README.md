@@ -26,7 +26,7 @@ These servers enable you to:
 - Authenticated with Azure: `az login`
 
 ### General Requirements
-- Node.js 18+ and npm
+- Node.js 18+ and pnpm 8+
 - JetBrains Rider (or any JetBrains IDE)
 - GitHub Copilot plugin installed
 
@@ -38,8 +38,8 @@ From the root directory:
 
 ```bash
 # Install all dependencies and build all servers
-npm run install:all
-npm run build:all
+pnpm install
+pnpm run build:all
 ```
 
 Or use the setup script:
@@ -55,16 +55,16 @@ Or use the setup script:
 **Jira MCP Server:**
 ```bash
 cd jira-mcp-server
-npm install
-npm run build
+pnpm install
+pnpm run build
 cd ..
 ```
 
 **Confluence MCP Server:**
 ```bash
 cd confluence-mcp-server
-npm install
-npm run build
+pnpm install
+pnpm run build
 cd ..
 
 # Set environment variables (or create .env file)
@@ -76,25 +76,25 @@ export CONFLUENCE_API_TOKEN="your_api_token"
 **Azure DevOps MCP Server:**
 ```bash
 cd azure-mcp-server
-npm install
-npm run build
+pnpm install
+pnpm run build
 cd ..
 ```
 
-### Available NPM Scripts
+### Available pnpm Scripts
 
 From the root directory:
 
 ```bash
-npm run install:all        # Install all dependencies
-npm run build:all          # Build all servers
-npm run build:jira         # Build only Jira server
-npm run build:confluence   # Build only Confluence server
-npm run build:azure        # Build only Azure DevOps server
-npm run dev:jira          # Watch mode for Jira server
-npm run dev:confluence    # Watch mode for Confluence server
-npm run dev:azure         # Watch mode for Azure DevOps server
-npm run clean             # Remove all node_modules and dist folders
+pnpm install              # Install all dependencies (uses pnpm workspace)
+pnpm run build:all        # Build all servers
+pnpm run build:jira       # Build only Jira server
+pnpm run build:confluence # Build only Confluence server
+pnpm run build:azure      # Build only Azure DevOps server
+pnpm run dev:jira         # Watch mode for Jira server
+pnpm run dev:confluence   # Watch mode for Confluence server
+pnpm run dev:azure        # Watch mode for Azure DevOps server
+pnpm run clean            # Remove all node_modules and dist folders
 ```
 
 ### 2. Configure in JetBrains Rider

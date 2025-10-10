@@ -1,0 +1,4 @@
+packages:
+  - 'jira-mcp-server'
+  - 'confluence-mcp-server'
+  - 'azure-mcp-server'
