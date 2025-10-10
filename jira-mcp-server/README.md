@@ -56,10 +56,10 @@ npx @modelcontextprotocol/inspector node dist/index.js
 Add to your MCP configuration:
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "jira": {
-      "command": "node",
-      "args": ["/path/to/jira-mcp-server/dist/index.js"]
+      "command": "/path/to/jira-mcp-server/venv/bin/python",
+      "args": ["/path/to/jira-mcp-server/server.py"]
     }
   }
 }

@@ -273,10 +273,10 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 **Format:**
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "serverName": {
-      "command": "node",
-      "args": ["/path/to/server/dist/index.js"]
+      "command": "/path/to/server/venv/bin/python",
+      "args": ["/path/to/server/server.py"]
     }
   }
 }

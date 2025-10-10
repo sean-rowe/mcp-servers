@@ -32,14 +32,14 @@ Create or edit your MCP configuration file:
 **Configuration:**
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "jira": {
-      "command": "node",
-      "args": ["/full/path/to/jira-mcp-server/dist/index.js"]
+      "command": "/full/path/to/jira-mcp-server/venv/bin/python",
+      "args": ["/full/path/to/jira-mcp-server/server.py"]
     },
     "azure-devops": {
-      "command": "node",
-      "args": ["/full/path/to/azure-mcp-server/dist/index.js"]
+      "command": "/full/path/to/azure-mcp-server/venv/bin/python",
+      "args": ["/full/path/to/azure-mcp-server/server.py"]
     }
   }
 }

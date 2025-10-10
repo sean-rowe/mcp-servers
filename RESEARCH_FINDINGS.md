@@ -6,7 +6,7 @@ This document details the research conducted to verify the accuracy of the MCP s
 
 ### ✅ What Was Verified Correct
 
-1. **MCP Configuration Format** - The `mcpServers` JSON format for JetBrains Rider was correct
+1. **MCP Configuration Format** - The JSON format for JetBrains Rider uses `"servers"` as the root key (not `"mcpServers"`)
 2. **MCP SDK Stdio Transport** - The `StdioServerTransport` usage was correct
 3. **Azure CLI Commands** - Most `az repos` and `az pipelines` commands were already correct
 4. **Overall Architecture** - The Server class and request handler pattern was valid
@@ -217,7 +217,7 @@ az pipelines build list [--branch]
 **Verified Configuration Format:**
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "serverName": {
       "command": "path-or-command-to-start-server",
       "args": ["optional-arguments-passed-to-server"]
@@ -226,17 +226,17 @@ az pipelines build list [--branch]
 }
 ```
 
-**Example for Node.js Server:**
+**Example for Python Server:**
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "jira": {
-      "command": "node",
-      "args": ["/path/to/jira-mcp-server/dist/index.js"]
+      "command": "/path/to/jira-mcp-server/venv/bin/python",
+      "args": ["/path/to/jira-mcp-server/server.py"]
     },
     "azure-devops": {
-      "command": "node",
-      "args": ["/path/to/azure-mcp-server/dist/index.js"]
+      "command": "/path/to/azure-mcp-server/venv/bin/python",
+      "args": ["/path/to/azure-mcp-server/server.py"]
     }
   }
 }
@@ -245,7 +245,7 @@ az pipelines build list [--branch]
 **Example for NPX:**
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "filesystem": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/allowed/path"]

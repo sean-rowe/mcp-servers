@@ -55,10 +55,10 @@ Add to your MCP configuration:
 
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "confluence": {
-      "command": "node",
-      "args": ["/path/to/confluence-mcp-server/dist/index.js"],
+      "command": "/path/to/confluence-mcp-server/venv/bin/python",
+      "args": ["/path/to/confluence-mcp-server/server.py"],
       "env": {
         "CONFLUENCE_URL": "https://yourcompany.atlassian.net",
         "CONFLUENCE_EMAIL": "your.email@company.com",

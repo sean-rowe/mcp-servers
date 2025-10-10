@@ -66,10 +66,10 @@ npx @modelcontextprotocol/inspector node dist/index.js
 Add to your MCP configuration:
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "azure-devops": {
-      "command": "node",
-      "args": ["/path/to/azure-mcp-server/dist/index.js"]
+      "command": "/path/to/azure-mcp-server/venv/bin/python",
+      "args": ["/path/to/azure-mcp-server/server.py"]
     }
   }
 }
