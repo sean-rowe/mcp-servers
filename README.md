@@ -32,20 +32,40 @@ These servers enable you to:
 
 ## Installation
 
-### 1. Build Both Servers
+### Quick Setup (Recommended)
 
-#### Jira MCP Server
+From the root directory:
+
+```bash
+# Install all dependencies and build all servers
+npm run install:all
+npm run build:all
+```
+
+Or use the setup script:
+
+```bash
+./setup.sh
+```
+
+### Manual Setup
+
+#### Build All Servers Individually
+
+**Jira MCP Server:**
 ```bash
 cd jira-mcp-server
 npm install
 npm run build
+cd ..
 ```
 
-#### Confluence MCP Server
+**Confluence MCP Server:**
 ```bash
 cd confluence-mcp-server
 npm install
 npm run build
+cd ..
 
 # Set environment variables (or create .env file)
 export CONFLUENCE_URL="https://yourcompany.atlassian.net"
@@ -53,11 +73,28 @@ export CONFLUENCE_EMAIL="your.email@company.com"
 export CONFLUENCE_API_TOKEN="your_api_token"
 ```
 
-#### Azure DevOps MCP Server
+**Azure DevOps MCP Server:**
 ```bash
 cd azure-mcp-server
 npm install
 npm run build
+cd ..
+```
+
+### Available NPM Scripts
+
+From the root directory:
+
+```bash
+npm run install:all        # Install all dependencies
+npm run build:all          # Build all servers
+npm run build:jira         # Build only Jira server
+npm run build:confluence   # Build only Confluence server
+npm run build:azure        # Build only Azure DevOps server
+npm run dev:jira          # Watch mode for Jira server
+npm run dev:confluence    # Watch mode for Confluence server
+npm run dev:azure         # Watch mode for Azure DevOps server
+npm run clean             # Remove all node_modules and dist folders
 ```
 
 ### 2. Configure in JetBrains Rider
