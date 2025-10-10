@@ -26,7 +26,7 @@ These servers enable you to:
 - Authenticated with Azure: `az login`
 
 ### General Requirements
-- Node.js 18+ and pnpm 8+
+- **Python 3.10+** and pip
 - JetBrains Rider (or any JetBrains IDE)
 - GitHub Copilot plugin installed
 
@@ -37,34 +37,30 @@ These servers enable you to:
 From the root directory:
 
 ```bash
-# Install all dependencies and build all servers
-pnpm install
-pnpm run build:all
-```
-
-Or use the setup script:
-
-```bash
+# Run the setup script
 ./setup.sh
 ```
 
+This will:
+1. Check for Python 3.10+, pip, acli, and Azure CLI
+2. Install Python dependencies for all three servers
+3. Display configuration instructions
+
 ### Manual Setup
 
-#### Build All Servers Individually
+#### Install Dependencies for Each Server
 
 **Jira MCP Server:**
 ```bash
 cd jira-mcp-server
-pnpm install
-pnpm run build
+pip3 install -r requirements.txt
 cd ..
 ```
 
 **Confluence MCP Server:**
 ```bash
 cd confluence-mcp-server
-pnpm install
-pnpm run build
+pip3 install -r requirements.txt
 cd ..
 
 # Set environment variables (or create .env file)
@@ -76,25 +72,8 @@ export CONFLUENCE_API_TOKEN="your_api_token"
 **Azure DevOps MCP Server:**
 ```bash
 cd azure-mcp-server
-pnpm install
-pnpm run build
+pip3 install -r requirements.txt
 cd ..
-```
-
-### Available pnpm Scripts
-
-From the root directory:
-
-```bash
-pnpm install              # Install all dependencies (uses pnpm workspace)
-pnpm run build:all        # Build all servers
-pnpm run build:jira       # Build only Jira server
-pnpm run build:confluence # Build only Confluence server
-pnpm run build:azure      # Build only Azure DevOps server
-pnpm run dev:jira         # Watch mode for Jira server
-pnpm run dev:confluence   # Watch mode for Confluence server
-pnpm run dev:azure        # Watch mode for Azure DevOps server
-pnpm run clean            # Remove all node_modules and dist folders
 ```
 
 ### 2. Configure in JetBrains Rider
@@ -109,12 +88,12 @@ pnpm run clean            # Remove all node_modules and dist folders
 {
   "mcpServers": {
     "jira": {
-      "command": "node",
-      "args": ["/Users/srowe/projects/github-copilot/jira-mcp-server/dist/index.js"]
+      "command": "python3",
+      "args": ["/Users/srowe/projects/github-copilot/jira-mcp-server/server.py"]
     },
     "confluence": {
-      "command": "node",
-      "args": ["/Users/srowe/projects/github-copilot/confluence-mcp-server/dist/index.js"],
+      "command": "python3",
+      "args": ["/Users/srowe/projects/github-copilot/confluence-mcp-server/server.py"],
       "env": {
         "CONFLUENCE_URL": "https://yourcompany.atlassian.net",
         "CONFLUENCE_EMAIL": "your.email@company.com",
@@ -122,8 +101,8 @@ pnpm run clean            # Remove all node_modules and dist folders
       }
     },
     "azure-devops": {
-      "command": "node",
-      "args": ["/Users/srowe/projects/github-copilot/azure-mcp-server/dist/index.js"]
+      "command": "python3",
+      "args": ["/Users/srowe/projects/github-copilot/azure-mcp-server/server.py"]
     }
   }
 }
@@ -253,6 +232,18 @@ Show me the last 20 commits in MyRepo on the main branch
 | `jira_get_current_sprint` | Get active sprint for a board |
 | `jira_list_my_issues` | List issues assigned to current user |
 
+### Confluence MCP Server
+
+| Tool | Description |
+|------|-------------|
+| `confluence_search` | Search using CQL (Confluence Query Language) |
+| `confluence_search_by_jira_key` | Find pages mentioning a Jira issue |
+| `confluence_get_page` | Get page content by ID |
+| `confluence_get_page_by_title` | Find page by title and space |
+| `confluence_list_space_pages` | List all pages in a space |
+| `confluence_get_page_children` | Get child pages |
+| `confluence_search_in_space` | Simple text search in a space |
+
 ### Azure DevOps MCP Server
 
 | Tool | Description |
@@ -267,6 +258,7 @@ Show me the last 20 commits in MyRepo on the main branch
 | `azure_add_pr_reviewers` | Add reviewers to a PR |
 | `azure_approve_pr` | Approve a PR |
 | `azure_complete_pr` | Complete (merge) a PR |
+| `azure_add_pr_comment` | Add comment to a PR |
 | `azure_list_branches` | List branches in a repository |
 | `azure_get_commits` | List recent commits |
 | `azure_get_build_status` | Get build/pipeline status |
@@ -314,6 +306,11 @@ Show me the last 20 commits in MyRepo on the main branch
 - Test acli connection: `acli jira --action getServerInfo`
 - Check credentials are configured
 
+### Confluence Server Not Working
+- Verify environment variables are set correctly
+- Test API token at https://id.atlassian.com/manage-profile/security/api-tokens
+- Check you have read access to the spaces
+
 ### Azure DevOps Server Not Working
 - Verify Azure CLI is installed: `az --version`
 - Check Azure DevOps extension: `az extension list`
@@ -321,89 +318,111 @@ Show me the last 20 commits in MyRepo on the main branch
 - Set default organization: `az devops configure --defaults organization=https://dev.azure.com/yourorg`
 
 ### MCP Server Not Showing in Copilot
-- Verify the paths in the configuration are correct
-- Check the server builds successfully: `npm run build`
+- Verify the paths in the configuration are correct and absolute paths
+- Check Python 3.10+ is installed: `python3 --version`
+- Verify dependencies are installed: `pip3 list | grep mcp`
 - Restart Rider after configuration changes
 - Check Rider logs for errors
 
+### Python Import Errors
+- Make sure you installed dependencies: `pip3 install -r requirements.txt`
+- Check Python version: `python3 --version` (must be 3.10+)
+- Try reinstalling: `pip3 install --upgrade mcp[cli]`
+
 ## Development
-
-### Running in Development Mode
-
-Watch for changes and rebuild automatically:
-
-```bash
-# Jira server
-cd jira-mcp-server
-npm run dev
-
-# Azure server
-cd azure-mcp-server
-npm run dev
-```
 
 ### Testing MCP Servers
 
-You can test the servers using the MCP Inspector:
+You can test the servers directly using the MCP SDK development tools:
 
 ```bash
-npx @modelcontextprotocol/inspector node dist/index.js
+# Test Jira server
+cd jira-mcp-server
+python3 server.py
+
+# Test Confluence server (with env vars)
+cd confluence-mcp-server
+export CONFLUENCE_URL="https://yourcompany.atlassian.net"
+export CONFLUENCE_EMAIL="your.email@company.com"
+export CONFLUENCE_API_TOKEN="your_api_token"
+python3 server.py
+
+# Test Azure server
+cd azure-mcp-server
+python3 server.py
+```
+
+Or use the MCP Inspector:
+
+```bash
+npx @modelcontextprotocol/inspector python3 server.py
+```
+
+### Project Structure
+
+```
+github-copilot/
+├── jira-mcp-server/
+│   ├── server.py           # Main Jira MCP server
+│   └── requirements.txt    # Python dependencies
+├── confluence-mcp-server/
+│   ├── server.py           # Main Confluence MCP server
+│   └── requirements.txt    # Python dependencies
+├── azure-mcp-server/
+│   ├── server.py           # Main Azure DevOps MCP server
+│   └── requirements.txt    # Python dependencies
+├── setup.sh                # Setup script
+└── README.md              # This file
 ```
 
 ## Customization
 
 ### Adding New Tools
 
-1. Edit `src/index.ts` in the respective server
-2. Add the tool definition to `ListToolsRequestSchema` handler
-3. Add the tool implementation to `CallToolRequestSchema` handler
-4. Rebuild: `npm run build`
-5. Restart Rider
+To add a new tool to any server:
 
-### Example: Adding a Custom Jira Tool
+1. Open the server's `server.py` file
+2. Add a new function decorated with `@mcp.tool()`:
 
-```typescript
-// In ListToolsRequestSchema handler
-{
-  name: "jira_get_sprint_velocity",
-  description: "Calculate velocity for a sprint",
-  inputSchema: {
-    type: "object",
-    properties: {
-      sprintId: {
-        type: "string",
-        description: "Sprint ID",
-      },
-    },
-    required: ["sprintId"],
-  },
-}
+```python
+@mcp.tool()
+def my_new_tool(param1: str, param2: int = 10) -> str:
+    """Description of what this tool does.
 
-// In CallToolRequestSchema handler
-case "jira_get_sprint_velocity": {
-  const { sprintId } = args as { sprintId: string };
-  const output = await executeAcli(
-    `sprint report --sprint ${sprintId} --output json`
-  );
-  return {
-    content: [{ type: "text", text: output }],
-  };
-}
+    Args:
+        param1: Description of param1
+        param2: Description of param2 (optional, default: 10)
+    """
+    # Your implementation here
+    result = execute_acli(f"some command {param1}")
+    return result
 ```
+
+3. The tool will automatically be registered and available in Copilot
+4. Restart Rider to see the new tool
 
 ## Security Considerations
 
-- Both servers execute CLI commands with your authenticated credentials
+- All servers execute CLI commands or API requests with your authenticated credentials
 - Ensure your machine is secure and credentials are protected
 - Review the code before running to understand what commands are executed
-- Consider using environment variables for sensitive configuration
-- These servers run locally and do not send data anywhere except to Jira/Azure DevOps via their respective CLIs
+- Use environment variables for sensitive configuration (especially for Confluence)
+- These servers run locally and do not send data anywhere except to Jira/Azure DevOps/Confluence via their respective CLIs and APIs
+- The Confluence server is strictly read-only (only GET requests)
+
+## Why Python?
+
+This project was migrated from TypeScript to Python for several reasons:
+- **Simpler**: No build step, no compilation needed
+- **Easier to maintain**: Direct execution of `.py` files
+- **Better for CLI integration**: Python's subprocess module is ideal for wrapping CLI tools
+- **Faster development**: No `package.json`, `node_modules`, or build artifacts
+- **Same functionality**: Works identically with JetBrains Rider via stdio transport
 
 ## Contributing
 
 Feel free to extend these servers with additional tools based on your workflow needs. Common additions might include:
 - Slack integration
-- Confluence integration
 - Git operations
 - Database queries
 - Custom reporting tools

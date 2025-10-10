@@ -8,26 +8,28 @@ echo ""
 # Check prerequisites
 echo "📋 Checking prerequisites..."
 
-# Check Node.js
-if ! command -v node &> /dev/null; then
-    echo "❌ Node.js is not installed. Please install Node.js 18+ first."
+# Check Python
+if ! command -v python3 &> /dev/null; then
+    echo "❌ Python 3 is not installed. Please install Python 3.10+ first."
     exit 1
 fi
 
-NODE_VERSION=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
-if [ "$NODE_VERSION" -lt 18 ]; then
-    echo "❌ Node.js version must be 18 or higher. Current version: $(node -v)"
-    exit 1
-fi
-echo "✅ Node.js $(node -v)"
+PYTHON_VERSION=$(python3 --version | cut -d' ' -f2 | cut -d'.' -f1,2)
+PYTHON_MAJOR=$(echo $PYTHON_VERSION | cut -d'.' -f1)
+PYTHON_MINOR=$(echo $PYTHON_VERSION | cut -d'.' -f2)
 
-# Check pnpm
-if ! command -v pnpm &> /dev/null; then
-    echo "❌ pnpm is not installed. Please install pnpm 8+ first."
-    echo "   npm install -g pnpm"
+if [ "$PYTHON_MAJOR" -lt 3 ] || ([ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -lt 10 ]); then
+    echo "❌ Python version must be 3.10 or higher. Current version: $(python3 --version)"
     exit 1
 fi
-echo "✅ pnpm $(pnpm -v)"
+echo "✅ Python $(python3 --version | cut -d' ' -f2)"
+
+# Check pip
+if ! command -v pip3 &> /dev/null; then
+    echo "❌ pip3 is not installed. Please install pip first."
+    exit 1
+fi
+echo "✅ pip $(pip3 --version | cut -d' ' -f2)"
 
 # Check acli (optional for Jira)
 if command -v acli &> /dev/null; then
@@ -42,7 +44,7 @@ if command -v az &> /dev/null; then
     echo "✅ Azure CLI installed"
 
     # Check for Azure DevOps extension
-    if az extension list | grep -q "azure-devops"; then
+    if az extension list 2>/dev/null | grep -q "azure-devops"; then
         echo "✅ Azure DevOps extension installed"
     else
         echo "⚠️  Azure DevOps extension not installed"
@@ -56,21 +58,19 @@ else
 fi
 
 echo ""
-echo "📦 Installing dependencies and building servers..."
+echo "📦 Installing Python dependencies..."
 echo ""
 
-# Build all servers using pnpm workspace
-echo "🔨 Installing dependencies for all servers..."
-pnpm install
-echo "✅ Dependencies installed"
+# Install dependencies for each server
+for server in jira-mcp-server confluence-mcp-server azure-mcp-server; do
+    echo "🔨 Installing dependencies for $server..."
+    cd "$server"
+    pip3 install -r requirements.txt
+    cd ..
+    echo "✅ $server dependencies installed"
+    echo ""
+done
 
-echo ""
-
-echo "🔨 Building all servers..."
-pnpm run build:all
-echo "✅ All servers built successfully"
-
-echo ""
 echo "✨ Setup complete!"
 echo ""
 echo "📝 Next steps:"
@@ -81,22 +81,36 @@ echo ""
 echo "2. Login to Azure (if not already done):"
 echo "   az login"
 echo ""
-echo "3. Add the following to your JetBrains Rider MCP configuration:"
+echo "3. For Confluence, set environment variables (or add to your shell profile):"
+echo "   export CONFLUENCE_URL=\"https://yourcompany.atlassian.net\""
+echo "   export CONFLUENCE_EMAIL=\"your.email@company.com\""
+echo "   export CONFLUENCE_API_TOKEN=\"your_api_token\""
+echo ""
+echo "4. Add the following to your JetBrains Rider MCP configuration:"
 echo "   (Click GitHub Copilot icon → Edit settings → MCP Servers section)"
 echo ""
 echo "{"
 echo "  \"mcpServers\": {"
 echo "    \"jira\": {"
-echo "      \"command\": \"node\","
-echo "      \"args\": [\"$(pwd)/jira-mcp-server/dist/index.js\"]"
+echo "      \"command\": \"python3\","
+echo "      \"args\": [\"$(pwd)/jira-mcp-server/server.py\"]"
+echo "    },"
+echo "    \"confluence\": {"
+echo "      \"command\": \"python3\","
+echo "      \"args\": [\"$(pwd)/confluence-mcp-server/server.py\"],"
+echo "      \"env\": {"
+echo "        \"CONFLUENCE_URL\": \"https://yourcompany.atlassian.net\","
+echo "        \"CONFLUENCE_EMAIL\": \"your.email@company.com\","
+echo "        \"CONFLUENCE_API_TOKEN\": \"your_api_token_here\""
+echo "      }"
 echo "    },"
 echo "    \"azure-devops\": {"
-echo "      \"command\": \"node\","
-echo "      \"args\": [\"$(pwd)/azure-mcp-server/dist/index.js\"]"
+echo "      \"command\": \"python3\","
+echo "      \"args\": [\"$(pwd)/azure-mcp-server/server.py\"]"
 echo "    }"
 echo "  }"
 echo "}"
 echo ""
-echo "4. Restart JetBrains Rider"
+echo "5. Restart JetBrains Rider"
 echo ""
 echo "📖 For more information, see README.md"
