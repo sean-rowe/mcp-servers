@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "jira": {
+      "command": "node",
+      "args": ["/Users/srowe/projects/github-copilot/jira-mcp-server/dist/index.js"]
+    },
+    "confluence": {
+      "command": "node",
+      "args": ["/Users/srowe/projects/github-copilot/confluence-mcp-server/dist/index.js"],
+      "env": {
+        "CONFLUENCE_URL": "https://yourcompany.atlassian.net",
+        "CONFLUENCE_EMAIL": "your.email@company.com",
+        "CONFLUENCE_API_TOKEN": "your_api_token_here"
+      }
+    },
+    "azure-devops": {
+      "command": "node",
+      "args": ["/Users/srowe/projects/github-copilot/azure-mcp-server/dist/index.js"]
+    }
+  }
+}
