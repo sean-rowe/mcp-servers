@@ -45,9 +45,14 @@ From the root directory:
 
 This will:
 1. Check for Python 3.10+, pip, acli, and Azure CLI
-2. Create a virtual environment in each server directory (`venv/`)
-3. Install Python dependencies into each virtual environment
-4. Display configuration instructions with the correct venv paths
+2. **Automatically add Confluence environment variables to your shell config** (.zshrc, .bashrc, or .bash_profile) with placeholder values
+3. Create a virtual environment in each server directory (`venv/`)
+4. Install Python dependencies into each virtual environment
+5. Display configuration instructions with the correct venv paths
+
+**After running setup.sh:**
+- Edit your shell config file (e.g., `~/.zshrc`) and update the `CONFLUENCE_URL`, `CONFLUENCE_EMAIL`, and `CONFLUENCE_API_TOKEN` values
+- Run `source ~/.zshrc` (or your shell config file) to load the new environment variables
 
 **Why virtual environments?** This approach works on externally managed Python environments (macOS, modern Linux) without requiring global pip installations or homebrew Python packages.
 
@@ -74,10 +79,17 @@ pip install -r requirements.txt
 deactivate
 cd ..
 
-# Set environment variables (or create .env file)
+# Add environment variables to your shell config (e.g., ~/.zshrc)
+cat >> ~/.zshrc << 'EOF'
+
+# MCP Confluence Server Configuration
 export CONFLUENCE_URL="https://yourcompany.atlassian.net"
 export CONFLUENCE_EMAIL="your.email@company.com"
-export CONFLUENCE_API_TOKEN="your_api_token"
+export CONFLUENCE_API_TOKEN="your_api_token_here"
+EOF
+
+# Then edit ~/.zshrc and update the values, then reload:
+source ~/.zshrc
 ```
 
 **Azure DevOps MCP Server:**
@@ -124,17 +136,26 @@ brew install python-mcp
     },
     "confluence": {
       "command": "/full/path/to/confluence-mcp-server/venv/bin/python",
-      "args": ["/full/path/to/confluence-mcp-server/server.py"],
-      "env": {
-        "CONFLUENCE_URL": "https://yourcompany.atlassian.net",
-        "CONFLUENCE_EMAIL": "your.email@company.com",
-        "CONFLUENCE_API_TOKEN": "your_api_token_here"
-      }
+      "args": ["/full/path/to/confluence-mcp-server/server.py"]
     },
     "azure-devops": {
       "command": "/full/path/to/azure-mcp-server/venv/bin/python",
       "args": ["/full/path/to/azure-mcp-server/server.py"]
     }
+  }
+}
+```
+
+**Note:** Since the Confluence environment variables are in your shell config (added by setup.sh), they don't need to be in the Rider configuration. However, if you prefer to keep them in Rider's config for clarity, you can add:
+
+```json
+"confluence": {
+  "command": "/full/path/to/confluence-mcp-server/venv/bin/python",
+  "args": ["/full/path/to/confluence-mcp-server/server.py"],
+  "env": {
+    "CONFLUENCE_URL": "https://yourcompany.atlassian.net",
+    "CONFLUENCE_EMAIL": "your.email@company.com",
+    "CONFLUENCE_API_TOKEN": "your_api_token_here"
   }
 }
 ```

@@ -58,6 +58,43 @@ else
 fi
 
 echo ""
+echo "📝 Setting up Confluence environment variables..."
+echo ""
+
+# Detect shell configuration file
+SHELL_CONFIG=""
+if [ -f "$HOME/.zshrc" ]; then
+    SHELL_CONFIG="$HOME/.zshrc"
+elif [ -f "$HOME/.bashrc" ]; then
+    SHELL_CONFIG="$HOME/.bashrc"
+elif [ -f "$HOME/.bash_profile" ]; then
+    SHELL_CONFIG="$HOME/.bash_profile"
+fi
+
+if [ -n "$SHELL_CONFIG" ]; then
+    # Check if CONFLUENCE_URL is already configured
+    if grep -q "CONFLUENCE_URL" "$SHELL_CONFIG"; then
+        echo "✅ Confluence environment variables already configured in $SHELL_CONFIG"
+    else
+        echo "📝 Adding Confluence environment variables to $SHELL_CONFIG..."
+        cat >> "$SHELL_CONFIG" << 'ENVEOF'
+
+# MCP Confluence Server Configuration
+# TODO: Update these values with your actual Confluence credentials
+export CONFLUENCE_URL="https://yourcompany.atlassian.net"
+export CONFLUENCE_EMAIL="your.email@company.com"
+export CONFLUENCE_API_TOKEN="your_api_token_here"
+ENVEOF
+        echo "✅ Environment variables added to $SHELL_CONFIG"
+        echo "⚠️  IMPORTANT: Edit $SHELL_CONFIG and update the Confluence values!"
+        echo "   Then run: source $SHELL_CONFIG"
+    fi
+else
+    echo "⚠️  Could not detect shell config file (.zshrc, .bashrc, or .bash_profile)"
+    echo "   You'll need to manually add Confluence environment variables"
+fi
+
+echo ""
 echo "📦 Setting up Python virtual environments..."
 echo ""
 
@@ -94,10 +131,15 @@ echo ""
 echo "2. Login to Azure (if not already done):"
 echo "   az login"
 echo ""
-echo "3. For Confluence, set environment variables (or add to your shell profile):"
-echo "   export CONFLUENCE_URL=\"https://yourcompany.atlassian.net\""
-echo "   export CONFLUENCE_EMAIL=\"your.email@company.com\""
-echo "   export CONFLUENCE_API_TOKEN=\"your_api_token\""
+if [ -n "$SHELL_CONFIG" ] && ! grep -q "CONFLUENCE_URL.*yourcompany.atlassian.net" "$SHELL_CONFIG" 2>/dev/null; then
+    echo "3. Edit your shell config and update Confluence credentials:"
+    echo "   Open: $SHELL_CONFIG"
+    echo "   Update the CONFLUENCE_URL, CONFLUENCE_EMAIL, and CONFLUENCE_API_TOKEN values"
+    echo "   Then run: source $SHELL_CONFIG"
+else
+    echo "3. For Confluence, update the environment variables in your shell config:"
+    echo "   Edit: $SHELL_CONFIG (already configured with placeholder values)"
+fi
 echo ""
 echo "4. Add the following to your JetBrains Rider MCP configuration:"
 echo "   (Click GitHub Copilot icon → Edit settings → MCP Servers section)"
@@ -110,12 +152,7 @@ echo "      \"args\": [\"$(pwd)/jira-mcp-server/server.py\"]"
 echo "    },"
 echo "    \"confluence\": {"
 echo "      \"command\": \"$(pwd)/confluence-mcp-server/venv/bin/python\","
-echo "      \"args\": [\"$(pwd)/confluence-mcp-server/server.py\"],"
-echo "      \"env\": {"
-echo "        \"CONFLUENCE_URL\": \"https://yourcompany.atlassian.net\","
-echo "        \"CONFLUENCE_EMAIL\": \"your.email@company.com\","
-echo "        \"CONFLUENCE_API_TOKEN\": \"your_api_token_here\""
-echo "      }"
+echo "      \"args\": [\"$(pwd)/confluence-mcp-server/server.py\"]"
 echo "    },"
 echo "    \"azure-devops\": {"
 echo "      \"command\": \"$(pwd)/azure-mcp-server/venv/bin/python\","
@@ -123,6 +160,8 @@ echo "      \"args\": [\"$(pwd)/azure-mcp-server/server.py\"]"
 echo "    }"
 echo "  }"
 echo "}"
+echo ""
+echo "Note: Confluence env vars are in $SHELL_CONFIG (update them there)"
 echo ""
 echo "5. Restart JetBrains Rider"
 echo ""
