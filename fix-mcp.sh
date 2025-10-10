@@ -13,33 +13,22 @@ cd "$SCRIPT_DIR"
 
 ERRORS=0
 
-# Step 1: Check if MCP is enabled in GitHub
-echo "📋 Step 1: Enable MCP in GitHub Settings"
-echo "========================================"
+# Step 1: Check prerequisites
+echo "📋 Step 1: Check Prerequisites"
+echo "=============================="
 echo ""
-echo "Opening GitHub Copilot features page in your browser..."
+echo "⚠️  IMPORTANT: MCP is configured IN JETBRAINS RIDER, not on GitHub's website"
 echo ""
-
-# Open the GitHub settings page
-if command -v open &> /dev/null; then
-    # macOS
-    open "https://github.com/settings/copilot/features"
-elif command -v xdg-open &> /dev/null; then
-    # Linux
-    xdg-open "https://github.com/settings/copilot/features"
-elif command -v start &> /dev/null; then
-    # Windows (Git Bash)
-    start "https://github.com/settings/copilot/features"
-else
-    echo "   Please manually open: https://github.com/settings/copilot/features"
-fi
-
-echo "🔍 ACTION REQUIRED:"
-echo "   1. On the GitHub page that just opened, find 'Model Context Protocol'"
-echo "   2. Make sure it is ENABLED (toggle should be ON)"
-echo "   3. Click 'Save' if you made changes"
+echo "Before continuing, make sure you have:"
+echo "  1. ✅ GitHub Copilot plugin v1.5.57+ in Rider"
+echo "  2. ✅ Valid Copilot license"
+echo "  3. ✅ If using Copilot Business/Enterprise: Your admin must enable"
+echo "        'MCP servers in Copilot' policy"
 echo ""
-read -p "Press ENTER when you've enabled MCP in GitHub settings..."
+echo "To check your Copilot plugin version:"
+echo "  Rider → Settings → Plugins → GitHub Copilot → Check version"
+echo ""
+read -p "Press ENTER when you've verified the above..."
 echo ""
 
 # Step 2: Check Python and virtual environments
@@ -181,20 +170,34 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 
 # Step 5: Instructions for Rider
-echo "📋 Step 5: Configure JetBrains Rider"
-echo "===================================="
+echo "📋 Step 5: Configure MCP in JetBrains Rider"
+echo "==========================================="
 echo ""
-echo "🔍 ACTION REQUIRED:"
+echo "🔍 ACTION REQUIRED - Follow these steps IN RIDER:"
 echo ""
 echo "1. Open JetBrains Rider"
-echo "2. Click the GitHub Copilot icon in the toolbar"
-echo "3. Select 'Edit settings'"
-echo "4. Find the 'MCP Servers' section"
-echo "5. Copy and paste the configuration above (or from $CONFIG_FILE)"
-echo "6. Click 'Save' or 'OK'"
-echo "7. RESTART Rider completely"
 echo ""
-echo "💡 TIP: You can also use this command to copy the config to clipboard:"
+echo "2. Click the GitHub Copilot icon (bottom right corner)"
+echo ""
+echo "3. Select 'Open Chat'"
+echo ""
+echo "4. Make sure you're in AGENT MODE (not regular chat)"
+echo "   - Look for 'Agent' toggle or mode switcher"
+echo ""
+echo "5. Click the TOOLS ICON at the bottom of the chat window"
+echo "   - This is labeled 'Configure your MCP server'"
+echo ""
+echo "6. Click 'Add MCP Tools'"
+echo "   - This will open mcp.json file"
+echo ""
+echo "7. Paste the configuration from: $CONFIG_FILE"
+echo "   - Or copy it from the output above"
+echo ""
+echo "8. Save the mcp.json file"
+echo ""
+echo "9. RESTART Rider completely"
+echo ""
+echo "💡 TIP: Copy the config to clipboard with:"
 if command -v pbcopy &> /dev/null; then
     echo "   cat $CONFIG_FILE | pbcopy"
 elif command -v xclip &> /dev/null; then

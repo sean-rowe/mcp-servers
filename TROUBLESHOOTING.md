@@ -46,16 +46,22 @@ This script will:
 
 If you prefer to do it manually:
 
-1. **Enable MCP servers in GitHub settings:**
-   - Go to https://github.com/settings/copilot/features
-   - Ensure "Model Context Protocol" is enabled
-   - Save changes
+1. **Check Prerequisites:**
+   - GitHub Copilot plugin v1.5.57+ installed in Rider
+   - Valid Copilot license
+   - If using Copilot Business/Enterprise: Org admin must enable "MCP servers in Copilot" policy
 
-2. **Restart JetBrains Rider completely**
+2. **Configure MCP in Rider (NOT on GitHub's website):**
+   - Click GitHub Copilot icon (bottom right) → Open Chat
+   - Switch to **Agent mode** (important!)
+   - Click tools icon at bottom → "Configure your MCP server"
+   - Click "Add MCP Tools" to open mcp.json
+   - Add your server configuration
+   - Save and restart Rider
 
 3. **Check MCP logs in Rider:**
    - Help → Show Log in Finder (macOS) or Show Log in Explorer (Windows)
-   - Look for MCP-related errors
+   - Look for MCP-related errors in idea.log or copilot.log
    - Common errors: server configuration issues, authentication problems
 
 If that doesn't work, check these common causes:
