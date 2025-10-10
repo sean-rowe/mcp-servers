@@ -27,7 +27,24 @@ This will check:
 
 **⚠️ Known Bug:** This is a known issue in the GitHub Copilot plugin for JetBrains IDEs. See [microsoft/copilot-intellij-feedback#636](https://github.com/microsoft/copilot-intellij-feedback/issues/636)
 
-**Quick Fix (Try This First):**
+**🚀 Automated Fix (Recommended):**
+
+Run the automated fix script that does everything for you:
+```bash
+./fix-mcp.sh
+```
+
+This script will:
+1. ✅ Open GitHub settings for you to enable MCP
+2. ✅ Check and create virtual environments if needed
+3. ✅ Set up Confluence environment variables
+4. ✅ Generate the correct Rider configuration file
+5. ✅ Provide step-by-step instructions for Rider
+6. ✅ Verify everything is set up correctly
+
+**Manual Quick Fix:**
+
+If you prefer to do it manually:
 
 1. **Enable MCP servers in GitHub settings:**
    - Go to https://github.com/settings/copilot/features

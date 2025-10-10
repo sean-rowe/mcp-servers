@@ -56,11 +56,24 @@ This will:
 
 **Why virtual environments?** This approach works on externally managed Python environments (macOS, modern Linux) without requiring global pip installations or homebrew Python packages.
 
-**Having issues?** If the setup fails or servers don't load, run:
+**Having issues?**
+
+If you see a **spinning loading icon** in Rider's MCP settings, run the automated fix:
+```bash
+./fix-mcp.sh
+```
+This script automates the fix from [GitHub issue #636](https://github.com/microsoft/copilot-intellij-feedback/issues/636) by:
+1. Opening GitHub settings to enable MCP
+2. Setting up virtual environments
+3. Generating the correct Rider configuration
+4. Providing step-by-step instructions
+
+Or run the diagnostic to check what's wrong:
 ```bash
 ./diagnose.sh
 ```
-This will check your Python version, virtual environments, dependencies, and configuration. See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for detailed help.
+
+See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for detailed help.
 
 ### Manual Setup
 
@@ -385,12 +398,23 @@ Show me the last 20 commits in MyRepo on the main branch
 
 ## Troubleshooting
 
-**⚠️ Spinning loading icon in Rider?** Run the diagnostic script first:
+**⚠️ Spinning loading icon in Rider?**
 
+**Option 1 - Automated Fix (Recommended):**
+```bash
+./fix-mcp.sh
+```
+This script automates the complete fix from [GitHub issue #636](https://github.com/microsoft/copilot-intellij-feedback/issues/636):
+1. Opens GitHub settings to enable MCP
+2. Sets up virtual environments
+3. Configures Confluence environment variables
+4. Generates correct Rider configuration
+5. Guides you through the final steps
+
+**Option 2 - Diagnostic Check:**
 ```bash
 ./diagnose.sh
 ```
-
 This will identify common issues like:
 - Python version too old (need 3.10+)
 - Missing virtual environments
