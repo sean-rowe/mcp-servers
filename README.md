@@ -58,15 +58,11 @@ This will:
 
 **Having issues?**
 
-If you see a **spinning loading icon** in Rider's MCP settings, run the automated fix:
+If you see a **spinning loading icon** in Rider's MCP settings, this is a known bug. Run this script to bypass the UI completely:
 ```bash
-./fix-mcp.sh
+./install-mcp-config.sh
 ```
-This script automates the fix from [GitHub issue #636](https://github.com/microsoft/copilot-intellij-feedback/issues/636) by:
-1. Opening GitHub settings to enable MCP
-2. Setting up virtual environments
-3. Generating the correct Rider configuration
-4. Providing step-by-step instructions
+This script creates `.vscode/mcp.json` directly on disk, bypassing the spinning UI. After running it, restart Rider and the spinner should be gone.
 
 Or run the diagnostic to check what's wrong:
 ```bash
@@ -405,16 +401,13 @@ Show me the last 20 commits in MyRepo on the main branch
 
 **⚠️ Spinning loading icon in Rider?**
 
-**Option 1 - Automated Fix (Recommended):**
+This is a known bug in the JetBrains Copilot plugin (see [GitHub issue #636](https://github.com/microsoft/copilot-intellij-feedback/issues/636)). The spinning icon prevents you from accessing the configuration UI.
+
+**Solution - Bypass the UI completely:**
 ```bash
-./fix-mcp.sh
+./install-mcp-config.sh
 ```
-This script automates the complete fix from [GitHub issue #636](https://github.com/microsoft/copilot-intellij-feedback/issues/636):
-1. Opens GitHub settings to enable MCP
-2. Sets up virtual environments
-3. Configures Confluence environment variables
-4. Generates correct Rider configuration
-5. Guides you through the final steps
+This script creates `.vscode/mcp.json` directly on disk with the correct configuration. JetBrains Copilot plugin will automatically detect and use this file. After running the script, **completely restart Rider** (quit and reopen, not just reload) and the spinning icon should be gone.
 
 **Option 2 - Diagnostic Check:**
 ```bash

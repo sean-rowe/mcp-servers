@@ -29,18 +29,19 @@ This will check:
 
 **🚀 Automated Fix (Recommended):**
 
-Run the automated fix script that does everything for you:
+The spinning icon prevents you from accessing the configuration UI. This script bypasses the UI completely by creating the configuration file directly on disk:
+
 ```bash
-./fix-mcp.sh
+./install-mcp-config.sh
 ```
 
 This script will:
-1. ✅ Open GitHub settings for you to enable MCP
-2. ✅ Check and create virtual environments if needed
-3. ✅ Set up Confluence environment variables
-4. ✅ Generate the correct Rider configuration file
-5. ✅ Provide step-by-step instructions for Rider
-6. ✅ Verify everything is set up correctly
+1. ✅ Check that virtual environments exist (runs setup if needed)
+2. ✅ Create `.vscode/mcp.json` with the correct configuration
+3. ✅ Bypass the spinning UI completely
+4. ✅ JetBrains Copilot plugin will automatically detect and use this file
+
+After running the script, **completely restart JetBrains Rider** (quit and reopen, not just reload) and the spinning icon should be gone.
 
 **Manual Quick Fix:**
 
