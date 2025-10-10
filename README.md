@@ -124,7 +124,18 @@ brew install python-mcp
 # (Note: Check if mcp package is available in Homebrew)
 ```
 
-### 2. Configure in JetBrains Rider
+### 2. Enable MCP in GitHub Settings (REQUIRED)
+
+**⚠️ Important:** Before configuring Rider, you must enable MCP in your GitHub account:
+
+1. Go to https://github.com/settings/copilot/features
+2. Find "Model Context Protocol"
+3. Enable it
+4. Save changes
+
+Without this, you'll see a **spinning loading icon** in Rider's MCP settings page.
+
+### 3. Configure in JetBrains Rider
 
 1. Open Rider
 2. Click the **GitHub Copilot icon**
@@ -181,9 +192,11 @@ brew install python-mcp
 
 **Note**: Update the paths to match your actual installation directory. The `./setup.sh` script will output the exact paths to use.
 
-### 3. Restart Rider
+### 4. Restart Rider
 
 After adding the configuration, restart Rider for the changes to take effect.
+
+**Still seeing a spinning icon?** See the [Troubleshooting](#troubleshooting) section below or check [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
 ## Usage Examples
 

@@ -25,6 +25,24 @@ This will check:
 
 **Symptoms:** The GitHub Copilot MCP configuration page shows a spinning icon and servers never load.
 
+**⚠️ Known Bug:** This is a known issue in the GitHub Copilot plugin for JetBrains IDEs. See [microsoft/copilot-intellij-feedback#636](https://github.com/microsoft/copilot-intellij-feedback/issues/636)
+
+**Quick Fix (Try This First):**
+
+1. **Enable MCP servers in GitHub settings:**
+   - Go to https://github.com/settings/copilot/features
+   - Ensure "Model Context Protocol" is enabled
+   - Save changes
+
+2. **Restart JetBrains Rider completely**
+
+3. **Check MCP logs in Rider:**
+   - Help → Show Log in Finder (macOS) or Show Log in Explorer (Windows)
+   - Look for MCP-related errors
+   - Common errors: server configuration issues, authentication problems
+
+If that doesn't work, check these common causes:
+
 **Common Causes:**
 
 #### 1a. Python Version Too Old
@@ -288,23 +306,57 @@ git pull origin main
 # 7. Restart Rider
 ```
 
+## Checking Rider Logs for MCP Errors
+
+The Copilot plugin doesn't show error messages in the UI (just a spinner), but logs contain the real errors:
+
+**macOS:**
+```bash
+# Open logs folder
+open ~/Library/Logs/JetBrains/Rider*/
+
+# Or from Rider: Help → Show Log in Finder
+```
+
+**Windows:**
+```bash
+# From Rider: Help → Show Log in Explorer
+```
+
+**Linux:**
+```bash
+# Open logs folder
+cd ~/.cache/JetBrains/Rider*/log/
+```
+
+**Look for files like:**
+- `idea.log` - Main IDE log
+- `copilot.log` - Copilot-specific errors
+
+**Common error messages:**
+- `Failed to start MCP server` - Check Python paths
+- `Command not found` - Use absolute paths in config
+- `Permission denied` - Check file permissions with `./diagnose.sh`
+- `Import error` - Dependencies not installed in venv
+- `Python version` - System Python too old
+
 ## Getting Help
 
 If you're still stuck:
 
-1. Run `./diagnose.sh` and save the output
-2. Check the Rider logs:
-   - Help → Show Log in Finder (macOS)
-   - Look for MCP-related errors
-3. Try running the server manually to see errors:
+1. **Check GitHub Copilot settings:** https://github.com/settings/copilot/features (enable MCP)
+2. Run `./diagnose.sh` and save the output
+3. Check the Rider logs (see above) for MCP-related errors
+4. Try running the server manually to see errors:
    ```bash
    cd jira-mcp-server
    ./venv/bin/python server.py
    ```
-4. Check that you're using the right Python:
+5. Check that you're using the right Python:
    ```bash
    ./venv/bin/python --version  # Should be 3.10+
    ```
+6. Report issues at [microsoft/copilot-intellij-feedback](https://github.com/microsoft/copilot-intellij-feedback/issues)
 
 ## Quick Checklist
 

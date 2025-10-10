@@ -167,6 +167,15 @@ echo "Errors:   $ERRORS"
 echo "Warnings: $WARNINGS"
 echo ""
 
+echo "⚠️  IMPORTANT: Before using MCP servers in JetBrains Rider:"
+echo "   1. Enable MCP in GitHub: https://github.com/settings/copilot/features"
+echo "   2. Configure the servers in Rider (see below for paths)"
+echo "   3. Restart Rider completely"
+echo ""
+echo "   Without step 1, you'll see a spinning loading icon."
+echo "   See: https://github.com/microsoft/copilot-intellij-feedback/issues/636"
+echo ""
+
 if [ $ERRORS -eq 0 ] && [ $WARNINGS -eq 0 ]; then
     echo "🎉 All checks passed! Your MCP servers should work."
     echo ""
