@@ -8,21 +8,30 @@ echo ""
 # Check prerequisites
 echo "📋 Checking prerequisites..."
 
-# Check Python
-if ! command -v python3 &> /dev/null; then
+# Check Python - prefer python3.12, fall back to python3
+PYTHON_CMD=""
+
+if command -v python3.12 &> /dev/null; then
+    PYTHON_CMD="python3.12"
+    echo "✅ Found Python 3.12: $(python3.12 --version)"
+elif command -v python3 &> /dev/null; then
+    PYTHON_VERSION=$(python3 --version | cut -d' ' -f2 | cut -d'.' -f1,2)
+    PYTHON_MAJOR=$(echo $PYTHON_VERSION | cut -d'.' -f1)
+    PYTHON_MINOR=$(echo $PYTHON_VERSION | cut -d'.' -f2)
+
+    if [ "$PYTHON_MAJOR" -ge 3 ] && [ "$PYTHON_MINOR" -ge 10 ]; then
+        PYTHON_CMD="python3"
+        echo "✅ Python $(python3 --version | cut -d' ' -f2)"
+    else
+        echo "❌ Python version must be 3.10 or higher. Current version: $(python3 --version)"
+        echo "   Install Python 3.12: brew install python@3.12"
+        exit 1
+    fi
+else
     echo "❌ Python 3 is not installed. Please install Python 3.10+ first."
+    echo "   Install with: brew install python@3.12"
     exit 1
 fi
-
-PYTHON_VERSION=$(python3 --version | cut -d' ' -f2 | cut -d'.' -f1,2)
-PYTHON_MAJOR=$(echo $PYTHON_VERSION | cut -d'.' -f1)
-PYTHON_MINOR=$(echo $PYTHON_VERSION | cut -d'.' -f2)
-
-if [ "$PYTHON_MAJOR" -lt 3 ] || ([ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -lt 10 ]); then
-    echo "❌ Python version must be 3.10 or higher. Current version: $(python3 --version)"
-    exit 1
-fi
-echo "✅ Python $(python3 --version | cut -d' ' -f2)"
 
 # Check pip
 if ! command -v pip3 &> /dev/null; then
@@ -105,8 +114,8 @@ for server in jira-mcp-server confluence-mcp-server azure-mcp-server; do
 
     # Create virtual environment if it doesn't exist
     if [ ! -d "venv" ]; then
-        echo "   Creating virtual environment..."
-        python3 -m venv venv
+        echo "   Creating virtual environment with $PYTHON_CMD..."
+        $PYTHON_CMD -m venv venv
     fi
 
     # Activate virtual environment and install dependencies

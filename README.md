@@ -56,6 +56,12 @@ This will:
 
 **Why virtual environments?** This approach works on externally managed Python environments (macOS, modern Linux) without requiring global pip installations or homebrew Python packages.
 
+**Having issues?** If the setup fails or servers don't load, run:
+```bash
+./diagnose.sh
+```
+This will check your Python version, virtual environments, dependencies, and configuration. See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for detailed help.
+
 ### Manual Setup
 
 #### Install Dependencies for Each Server (using virtual environments)
@@ -365,6 +371,23 @@ Show me the last 20 commits in MyRepo on the main branch
 ```
 
 ## Troubleshooting
+
+**⚠️ Spinning loading icon in Rider?** Run the diagnostic script first:
+
+```bash
+./diagnose.sh
+```
+
+This will identify common issues like:
+- Python version too old (need 3.10+)
+- Missing virtual environments
+- Dependencies not installed
+- Wrong paths in Rider configuration
+- Missing environment variables
+
+For detailed troubleshooting steps, see **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)**.
+
+---
 
 ### Jira Server Not Working
 - Verify acli is installed: `acli --version`
