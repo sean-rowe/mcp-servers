@@ -30,6 +30,8 @@ These servers enable you to:
 - JetBrains Rider (or any JetBrains IDE)
 - GitHub Copilot plugin installed
 
+**Note on Python environments:** Modern macOS and Linux systems use externally managed Python environments. The setup script automatically creates virtual environments for each server to avoid conflicts. No global pip installation required!
+
 ## Installation
 
 ### Quick Setup (Recommended)
@@ -43,24 +45,33 @@ From the root directory:
 
 This will:
 1. Check for Python 3.10+, pip, acli, and Azure CLI
-2. Install Python dependencies for all three servers
-3. Display configuration instructions
+2. Create a virtual environment in each server directory (`venv/`)
+3. Install Python dependencies into each virtual environment
+4. Display configuration instructions with the correct venv paths
+
+**Why virtual environments?** This approach works on externally managed Python environments (macOS, modern Linux) without requiring global pip installations or homebrew Python packages.
 
 ### Manual Setup
 
-#### Install Dependencies for Each Server
+#### Install Dependencies for Each Server (using virtual environments)
 
 **Jira MCP Server:**
 ```bash
 cd jira-mcp-server
-pip3 install -r requirements.txt
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+deactivate
 cd ..
 ```
 
 **Confluence MCP Server:**
 ```bash
 cd confluence-mcp-server
-pip3 install -r requirements.txt
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+deactivate
 cd ..
 
 # Set environment variables (or create .env file)
@@ -72,8 +83,27 @@ export CONFLUENCE_API_TOKEN="your_api_token"
 **Azure DevOps MCP Server:**
 ```bash
 cd azure-mcp-server
-pip3 install -r requirements.txt
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+deactivate
 cd ..
+```
+
+**Alternative: Global installation with pipx**
+
+If you prefer, you can install the MCP package globally using pipx:
+```bash
+pipx install mcp[cli]
+# Then use system python3 in your Rider configuration
+```
+
+**Alternative: Homebrew Python**
+
+Or install Python packages via Homebrew:
+```bash
+brew install python-mcp
+# (Note: Check if mcp package is available in Homebrew)
 ```
 
 ### 2. Configure in JetBrains Rider
@@ -84,16 +114,17 @@ cd ..
 4. Find the **MCP Servers** section
 5. Add the following configuration:
 
+**Using virtual environments (recommended):**
 ```json
 {
   "mcpServers": {
     "jira": {
-      "command": "python3",
-      "args": ["/Users/srowe/projects/github-copilot/jira-mcp-server/server.py"]
+      "command": "/full/path/to/jira-mcp-server/venv/bin/python",
+      "args": ["/full/path/to/jira-mcp-server/server.py"]
     },
     "confluence": {
-      "command": "python3",
-      "args": ["/Users/srowe/projects/github-copilot/confluence-mcp-server/server.py"],
+      "command": "/full/path/to/confluence-mcp-server/venv/bin/python",
+      "args": ["/full/path/to/confluence-mcp-server/server.py"],
       "env": {
         "CONFLUENCE_URL": "https://yourcompany.atlassian.net",
         "CONFLUENCE_EMAIL": "your.email@company.com",
@@ -101,14 +132,27 @@ cd ..
       }
     },
     "azure-devops": {
-      "command": "python3",
-      "args": ["/Users/srowe/projects/github-copilot/azure-mcp-server/server.py"]
+      "command": "/full/path/to/azure-mcp-server/venv/bin/python",
+      "args": ["/full/path/to/azure-mcp-server/server.py"]
     }
   }
 }
 ```
 
-**Note**: Update the paths to match your actual installation directory.
+**Using system Python (if you used pipx or global install):**
+```json
+{
+  "mcpServers": {
+    "jira": {
+      "command": "python3",
+      "args": ["/full/path/to/jira-mcp-server/server.py"]
+    },
+    ...
+  }
+}
+```
+
+**Note**: Update the paths to match your actual installation directory. The `./setup.sh` script will output the exact paths to use.
 
 ### 3. Restart Rider
 
@@ -325,37 +369,45 @@ Show me the last 20 commits in MyRepo on the main branch
 - Check Rider logs for errors
 
 ### Python Import Errors
-- Make sure you installed dependencies: `pip3 install -r requirements.txt`
+- Make sure you created the virtual environment: `python3 -m venv venv`
+- Make sure you installed dependencies in the venv: `source venv/bin/activate && pip install -r requirements.txt`
 - Check Python version: `python3 --version` (must be 3.10+)
-- Try reinstalling: `pip3 install --upgrade mcp[cli]`
+- Verify you're using the venv Python in Rider configuration: `/full/path/to/venv/bin/python`
+
+### Externally Managed Environment Error
+If you see "error: externally-managed-environment" when trying to install packages:
+- ✅ Use virtual environments (recommended): Run `./setup.sh` which creates venvs automatically
+- ✅ Use pipx for global installation: `pipx install mcp[cli]`
+- ✅ Use Homebrew: `brew install python-mcp` (if available)
+- ❌ Don't use `pip3 install --user` or `sudo pip3 install` (not recommended)
 
 ## Development
 
 ### Testing MCP Servers
 
-You can test the servers directly using the MCP SDK development tools:
+You can test the servers directly using their virtual environments:
 
 ```bash
 # Test Jira server
 cd jira-mcp-server
-python3 server.py
+./venv/bin/python server.py
 
 # Test Confluence server (with env vars)
 cd confluence-mcp-server
 export CONFLUENCE_URL="https://yourcompany.atlassian.net"
 export CONFLUENCE_EMAIL="your.email@company.com"
 export CONFLUENCE_API_TOKEN="your_api_token"
-python3 server.py
+./venv/bin/python server.py
 
 # Test Azure server
 cd azure-mcp-server
-python3 server.py
+./venv/bin/python server.py
 ```
 
 Or use the MCP Inspector:
 
 ```bash
-npx @modelcontextprotocol/inspector python3 server.py
+npx @modelcontextprotocol/inspector ./venv/bin/python server.py
 ```
 
 ### Project Structure
@@ -364,13 +416,16 @@ npx @modelcontextprotocol/inspector python3 server.py
 github-copilot/
 ├── jira-mcp-server/
 │   ├── server.py           # Main Jira MCP server
-│   └── requirements.txt    # Python dependencies
+│   ├── requirements.txt    # Python dependencies
+│   └── venv/              # Virtual environment (created by setup.sh)
 ├── confluence-mcp-server/
 │   ├── server.py           # Main Confluence MCP server
-│   └── requirements.txt    # Python dependencies
+│   ├── requirements.txt    # Python dependencies
+│   └── venv/              # Virtual environment (created by setup.sh)
 ├── azure-mcp-server/
 │   ├── server.py           # Main Azure DevOps MCP server
-│   └── requirements.txt    # Python dependencies
+│   ├── requirements.txt    # Python dependencies
+│   └── venv/              # Virtual environment (created by setup.sh)
 ├── setup.sh                # Setup script
 └── README.md              # This file
 ```

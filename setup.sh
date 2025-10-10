@@ -58,16 +58,29 @@ else
 fi
 
 echo ""
-echo "📦 Installing Python dependencies..."
+echo "📦 Setting up Python virtual environments..."
 echo ""
 
-# Install dependencies for each server
+# Create virtual environments and install dependencies for each server
 for server in jira-mcp-server confluence-mcp-server azure-mcp-server; do
-    echo "🔨 Installing dependencies for $server..."
+    echo "🔨 Setting up $server..."
     cd "$server"
-    pip3 install -r requirements.txt
+
+    # Create virtual environment if it doesn't exist
+    if [ ! -d "venv" ]; then
+        echo "   Creating virtual environment..."
+        python3 -m venv venv
+    fi
+
+    # Activate virtual environment and install dependencies
+    echo "   Installing dependencies..."
+    source venv/bin/activate
+    pip install --upgrade pip
+    pip install -r requirements.txt
+    deactivate
+
     cd ..
-    echo "✅ $server dependencies installed"
+    echo "✅ $server setup complete"
     echo ""
 done
 
@@ -92,11 +105,11 @@ echo ""
 echo "{"
 echo "  \"mcpServers\": {"
 echo "    \"jira\": {"
-echo "      \"command\": \"python3\","
+echo "      \"command\": \"$(pwd)/jira-mcp-server/venv/bin/python\","
 echo "      \"args\": [\"$(pwd)/jira-mcp-server/server.py\"]"
 echo "    },"
 echo "    \"confluence\": {"
-echo "      \"command\": \"python3\","
+echo "      \"command\": \"$(pwd)/confluence-mcp-server/venv/bin/python\","
 echo "      \"args\": [\"$(pwd)/confluence-mcp-server/server.py\"],"
 echo "      \"env\": {"
 echo "        \"CONFLUENCE_URL\": \"https://yourcompany.atlassian.net\","
@@ -105,7 +118,7 @@ echo "        \"CONFLUENCE_API_TOKEN\": \"your_api_token_here\""
 echo "      }"
 echo "    },"
 echo "    \"azure-devops\": {"
-echo "      \"command\": \"python3\","
+echo "      \"command\": \"$(pwd)/azure-mcp-server/venv/bin/python\","
 echo "      \"args\": [\"$(pwd)/azure-mcp-server/server.py\"]"
 echo "    }"
 echo "  }"
