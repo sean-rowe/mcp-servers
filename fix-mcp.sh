@@ -146,14 +146,17 @@ cat > "$CONFIG_FILE" << EOF
 {
   "servers": {
     "jira": {
+      "type": "stdio",
       "command": "$SCRIPT_DIR/jira-mcp-server/venv/bin/python",
       "args": ["$SCRIPT_DIR/jira-mcp-server/server.py"]
     },
     "confluence": {
+      "type": "stdio",
       "command": "$SCRIPT_DIR/confluence-mcp-server/venv/bin/python",
       "args": ["$SCRIPT_DIR/confluence-mcp-server/server.py"]
     },
     "azure-devops": {
+      "type": "stdio",
       "command": "$SCRIPT_DIR/azure-mcp-server/venv/bin/python",
       "args": ["$SCRIPT_DIR/azure-mcp-server/server.py"]
     }

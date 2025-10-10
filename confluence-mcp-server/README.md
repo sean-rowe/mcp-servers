@@ -57,6 +57,7 @@ Add to your MCP configuration:
 {
   "servers": {
     "confluence": {
+      "type": "stdio",
       "command": "/path/to/confluence-mcp-server/venv/bin/python",
       "args": ["/path/to/confluence-mcp-server/server.py"],
       "env": {

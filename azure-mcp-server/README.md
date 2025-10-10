@@ -68,6 +68,7 @@ Add to your MCP configuration:
 {
   "servers": {
     "azure-devops": {
+      "type": "stdio",
       "command": "/path/to/azure-mcp-server/venv/bin/python",
       "args": ["/path/to/azure-mcp-server/server.py"]
     }

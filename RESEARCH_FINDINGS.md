@@ -219,6 +219,7 @@ az pipelines build list [--branch]
 {
   "servers": {
     "serverName": {
+      "type": "stdio",
       "command": "path-or-command-to-start-server",
       "args": ["optional-arguments-passed-to-server"]
     }
@@ -231,10 +232,12 @@ az pipelines build list [--branch]
 {
   "servers": {
     "jira": {
+      "type": "stdio",
       "command": "/path/to/jira-mcp-server/venv/bin/python",
       "args": ["/path/to/jira-mcp-server/server.py"]
     },
     "azure-devops": {
+      "type": "stdio",
       "command": "/path/to/azure-mcp-server/venv/bin/python",
       "args": ["/path/to/azure-mcp-server/server.py"]
     }
@@ -247,6 +250,7 @@ az pipelines build list [--branch]
 {
   "servers": {
     "filesystem": {
+      "type": "stdio",
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/allowed/path"]
     }

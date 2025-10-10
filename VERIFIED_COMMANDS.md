@@ -275,6 +275,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 {
   "servers": {
     "serverName": {
+      "type": "stdio",
       "command": "/path/to/server/venv/bin/python",
       "args": ["/path/to/server/server.py"]
     }

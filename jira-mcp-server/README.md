@@ -58,6 +58,7 @@ Add to your MCP configuration:
 {
   "servers": {
     "jira": {
+      "type": "stdio",
       "command": "/path/to/jira-mcp-server/venv/bin/python",
       "args": ["/path/to/jira-mcp-server/server.py"]
     }

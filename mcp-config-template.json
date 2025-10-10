@@ -1,10 +1,12 @@
 {
   "servers": {
     "jira": {
+      "type": "stdio",
       "command": "/Users/srowe/projects/github-copilot/jira-mcp-server/venv/bin/python",
       "args": ["/Users/srowe/projects/github-copilot/jira-mcp-server/server.py"]
     },
     "confluence": {
+      "type": "stdio",
       "command": "/Users/srowe/projects/github-copilot/confluence-mcp-server/venv/bin/python",
       "args": ["/Users/srowe/projects/github-copilot/confluence-mcp-server/server.py"],
       "env": {
@@ -14,6 +16,7 @@
       }
     },
     "azure-devops": {
+      "type": "stdio",
       "command": "/Users/srowe/projects/github-copilot/azure-mcp-server/venv/bin/python",
       "args": ["/Users/srowe/projects/github-copilot/azure-mcp-server/server.py"]
     }

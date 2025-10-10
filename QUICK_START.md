@@ -34,10 +34,12 @@ Create or edit your MCP configuration file:
 {
   "servers": {
     "jira": {
+      "type": "stdio",
       "command": "/full/path/to/jira-mcp-server/venv/bin/python",
       "args": ["/full/path/to/jira-mcp-server/server.py"]
     },
     "azure-devops": {
+      "type": "stdio",
       "command": "/full/path/to/azure-mcp-server/venv/bin/python",
       "args": ["/full/path/to/azure-mcp-server/server.py"]
     }
