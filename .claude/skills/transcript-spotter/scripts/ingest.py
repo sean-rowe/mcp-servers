@@ -16,8 +16,12 @@ DEFAULT_DB = Path.home() / "Library/Application Support/transcript-spotter/spott
 DB_PATH = Path(os.environ.get("TRANSCRIPT_SPOTTER_DB", DEFAULT_DB))
 
 # whisper.cpp stream prepends "[HH:MM:SS.mmm --> HH:MM:SS.mmm]  " and uses ANSI.
+# Match only that exact shape so non-timestamp brackets like "[laughter]" survive.
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
-TIMESTAMP = re.compile(r"^\s*\[[^\]]*\]\s*")
+TIMESTAMP = re.compile(
+    r"^\s*\[\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?\s*-->\s*"
+    r"\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?\]\s*"
+)
 
 
 def clean(line: str) -> str:
@@ -31,6 +35,9 @@ def main() -> int:
         sys.stderr.write(f"DB not found at {DB_PATH}; run scripts/init.sh first.\n")
         return 1
 
+    # Autocommit (per-row commit) is intentional: the spotter skill polls for
+    # unprocessed rows and we want each transcript line visible immediately.
+    # WAL + synchronous=NORMAL keeps the cost negligible at speech rates.
     conn = sqlite3.connect(DB_PATH, isolation_level=None)
     conn.execute("PRAGMA foreign_keys = ON;")
     conn.execute("PRAGMA journal_mode = WAL;")

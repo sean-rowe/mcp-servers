@@ -66,46 +66,52 @@ recall why it fired. `confidence` is 0.0–1.0; drop anything below 0.5.
 
 ## Procedure
 
-When invoked (with or without arguments):
+When invoked (with or without arguments), do the whole flow in one
+transaction so claim, write, and finalize are atomic — overlapping
+spotter runs (e.g. via `/loop`) cannot double-process a row, and any
+failure rolls back to leave rows unprocessed for the next attempt.
 
-1. **Pull unprocessed rows.** Read all rows where `processed_at IS NULL`,
-   ordered by `id`. If none, stop silently — do not chat.
-2. **Group into a window.** Process in chunks of ~30 rows so context across
-   nearby utterances is preserved.
-3. **Extract.** For each window, identify items matching the taxonomy. Skip
-   filler, small talk, and anything below 0.5 confidence.
-4. **Write opportunities.** Insert one row per item into `opportunities`,
-   linked to the originating `transcript_id`.
-5. **Mark processed.** Update `processed_at = datetime('now')` for every row
-   in the window — even ones with no extractions, so they aren't re-scanned.
-6. **Stay quiet.** Do not echo the extractions to the chat. The DB is the
-   destination. If the user explicitly asks "what did you find?", a one-line
-   count summary (e.g. `3 tasks, 1 question, 0 points`) is fine.
+1. **Open a write transaction and atomically claim a window** of up to
+   ~30 unprocessed rows in a single `UPDATE … RETURNING` so context across
+   nearby utterances is preserved. If nothing is claimed, `COMMIT` and
+   stop silently — do not chat.
+2. **Extract.** Identify items matching the taxonomy across the claimed
+   window. Skip filler, small talk, and anything below 0.5 confidence.
+3. **Write opportunities** in the same transaction. Insert one row per
+   item into `opportunities`, linked to the originating `transcript_id`.
+4. **`COMMIT`.** If anything fails between claim and commit, `ROLLBACK`
+   so the rows return to the unprocessed pool — no silent data loss.
+5. **Stay quiet.** Do not echo the extractions to the chat. The DB is the
+   destination. If the user explicitly asks "what did you find?", a
+   one-line count summary (e.g. `3 tasks, 1 question, 0 points`) is fine.
 
 ### Reference SQL
 
-Always begin a writing session with `PRAGMA foreign_keys = ON;` so the
+Begin every writing session with `PRAGMA foreign_keys = ON;` so the
 `opportunities.transcript_id` reference is enforced (SQLite's default is
 off, per connection).
 
 ```sql
 PRAGMA foreign_keys = ON;
+BEGIN IMMEDIATE;
 
--- pull
-SELECT id, ts, speaker, text
-FROM transcripts
-WHERE processed_at IS NULL
-ORDER BY id
-LIMIT 30;
+-- atomically claim up to 30 unprocessed rows; returned rows are the
+-- input window for extraction
+UPDATE transcripts
+SET processed_at = datetime('now')
+WHERE id IN (
+  SELECT id FROM transcripts
+  WHERE processed_at IS NULL
+  ORDER BY id
+  LIMIT 30
+)
+RETURNING id, ts, speaker, text;
 
--- write
+-- one INSERT per extracted opportunity
 INSERT INTO opportunities (transcript_id, kind, text, context, confidence)
 VALUES (?, ?, ?, ?, ?);
 
--- mark
-UPDATE transcripts
-SET processed_at = datetime('now')
-WHERE id IN (...);
+COMMIT;  -- ROLLBACK on any error so processed_at stays NULL
 ```
 
 ## Recurring use
