@@ -21,7 +21,11 @@ Use the `sqlite3` CLI (preinstalled on macOS). For multi-row writes prefer
 ### Schema
 
 ```sql
-CREATE TABLE transcripts (
+PRAGMA journal_mode = WAL;
+PRAGMA synchronous = NORMAL;
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE IF NOT EXISTS transcripts (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   ts           TEXT    NOT NULL DEFAULT (datetime('now')),
   text         TEXT    NOT NULL,
@@ -29,7 +33,7 @@ CREATE TABLE transcripts (
   processed_at TEXT
 );
 
-CREATE TABLE opportunities (
+CREATE TABLE IF NOT EXISTS opportunities (
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
   transcript_id INTEGER NOT NULL REFERENCES transcripts(id),
   kind          TEXT    NOT NULL CHECK (kind IN
@@ -40,9 +44,10 @@ CREATE TABLE opportunities (
   created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 
-CREATE INDEX idx_transcripts_unprocessed
+CREATE INDEX IF NOT EXISTS idx_transcripts_unprocessed
   ON transcripts(id) WHERE processed_at IS NULL;
-CREATE INDEX idx_opportunities_kind ON opportunities(kind, created_at);
+CREATE INDEX IF NOT EXISTS idx_opportunities_kind
+  ON opportunities(kind, created_at);
 ```
 
 Run `bash scripts/init.sh` once to create it.
@@ -72,7 +77,7 @@ spotter runs (e.g. via `/loop`) cannot double-process a row, and any
 failure rolls back to leave rows unprocessed for the next attempt.
 
 1. **Open a write transaction and atomically claim a window** of up to
-   ~30 unprocessed rows in a single `UPDATE … RETURNING` so context across
+   30 unprocessed rows in a single `UPDATE … RETURNING` so context across
    nearby utterances is preserved. If nothing is claimed, `COMMIT` and
    stop silently — do not chat.
 2. **Extract.** Identify items matching the taxonomy across the claimed
@@ -111,7 +116,7 @@ RETURNING id, ts, speaker, text;
 INSERT INTO opportunities (transcript_id, kind, text, context, confidence)
 VALUES (?, ?, ?, ?, ?);
 
-COMMIT;  -- ROLLBACK on any error so processed_at stays NULL
+COMMIT;  -- on any earlier error, ROLLBACK instead so processed_at stays NULL
 ```
 
 ## Recurring use
@@ -121,11 +126,13 @@ during a meeting, pair it with the `loop` skill, e.g. `/loop 30s
 /transcript-spotter`. Each invocation only sees new rows because of the
 `processed_at` watermark.
 
-## Audio → DB pipeline (Mac Pro)
+## Audio → DB pipeline (macOS)
 
 The skill itself is agnostic to how rows land in `transcripts`. The fastest
-path on a Mac Pro is whisper.cpp's `stream` example with Metal acceleration,
-piped into the included `ingest.py`:
+path on Apple Silicon (incl. Mac Pro) is whisper.cpp's `stream` example with
+Metal acceleration, piped into the included `ingest.py`. Run the commands
+below from the skill directory (`.claude/skills/transcript-spotter/`) so the
+relative path to `scripts/` resolves:
 
 ```bash
 # one-time
