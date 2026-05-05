@@ -7,6 +7,7 @@ mkdir -p "$(dirname "$DB")"
 sqlite3 "$DB" <<'SQL'
 PRAGMA journal_mode = WAL;
 PRAGMA synchronous = NORMAL;
+PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS transcripts (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -32,6 +32,7 @@ def main() -> int:
         return 1
 
     conn = sqlite3.connect(DB_PATH, isolation_level=None)
+    conn.execute("PRAGMA foreign_keys = ON;")
     conn.execute("PRAGMA journal_mode = WAL;")
     conn.execute("PRAGMA synchronous = NORMAL;")
 

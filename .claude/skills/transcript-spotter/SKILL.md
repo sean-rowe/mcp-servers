@@ -84,7 +84,13 @@ When invoked (with or without arguments):
 
 ### Reference SQL
 
+Always begin a writing session with `PRAGMA foreign_keys = ON;` so the
+`opportunities.transcript_id` reference is enforced (SQLite's default is
+off, per connection).
+
 ```sql
+PRAGMA foreign_keys = ON;
+
 -- pull
 SELECT id, ts, speaker, text
 FROM transcripts
