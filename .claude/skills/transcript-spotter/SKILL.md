@@ -36,7 +36,7 @@ CREATE TABLE opportunities (
                   ('task','question','point','volunteer','update')),
   text          TEXT    NOT NULL,
   context       TEXT,
-  confidence    REAL    NOT NULL,
+  confidence    REAL    NOT NULL CHECK (confidence >= 0.0 AND confidence <= 1.0),
   created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 
