@@ -50,7 +50,8 @@ CREATE INDEX IF NOT EXISTS idx_opportunities_kind
   ON opportunities(kind, created_at);
 ```
 
-Run `bash scripts/init.sh` once to create it.
+Run `bash scripts/init.sh` to create it. Safe to re-run — every `CREATE`
+uses `IF NOT EXISTS`, so it's idempotent.
 
 ## Extraction taxonomy
 
@@ -135,17 +136,26 @@ below from the skill directory (`.claude/skills/transcript-spotter/`) so the
 relative path to `scripts/` resolves:
 
 ```bash
-# one-time
-brew install whisper-cpp                        # provides `whisper-stream`
+# one-time setup
+brew install whisper-cpp        # ships `whisper-stream` (the streaming example)
 bash scripts/init.sh
 
+# one-time model download — `base.en` is a good default; swap for `tiny.en`,
+# `small.en`, etc. as needed
+mkdir -p ~/.cache/whisper.cpp
+curl -L -o ~/.cache/whisper.cpp/ggml-base.en.bin \
+  https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin
+
 # during a meeting
+export TRANSCRIPT_SPEAKER=alice   # optional; tags every inserted row
 whisper-stream -m ~/.cache/whisper.cpp/ggml-base.en.bin \
                --step 500 --length 5000 -t 8 \
   | python3 scripts/ingest.py
 ```
 
-`ingest.py` strips whisper.cpp's bracketed timestamps and inserts each
-non-empty line as a new transcripts row. Any other source that emits
-plain-text lines on stdout (WhisperKit CLI, Apple's Speech framework, a
-remote ASR service) works the same way.
+`ingest.py` strips whisper.cpp's bracketed timestamps (the
+`[HH:MM:SS.mmm --> HH:MM:SS.mmm]` shape only — non-timestamp brackets
+like `[laughter]` are kept) and inserts each non-empty line as a new
+`transcripts` row, attributing it to `$TRANSCRIPT_SPEAKER` when set. Any
+other source that emits plain-text lines on stdout (WhisperKit CLI,
+Apple's Speech framework, a remote ASR service) works the same way.
