@@ -122,10 +122,18 @@ COMMIT;  -- on any earlier error, ROLLBACK instead so processed_at stays NULL
 
 ## Recurring use
 
-This skill processes whatever is currently unprocessed. To run it on a loop
-during a meeting, pair it with the `loop` skill, e.g. `/loop 30s
-/transcript-spotter`. Each invocation only sees new rows because of the
-`processed_at` watermark.
+There are two ways to keep the spotter running against a live mic:
+
+**Realtime (preferred).** Run `scripts/spotter-daemon.py`. It owns a Unix
+socket, persists lines pushed in by `scripts/ingest.py`, and spawns
+`claude -p` to invoke this skill whenever the buffer reaches
+`TRANSCRIPT_SPOTTER_FLUSH_LINES` rows (default 8) or has been idle for
+`TRANSCRIPT_SPOTTER_FLUSH_IDLE` seconds (default 3). Overlapping triggers
+during a running invocation are coalesced into one re-run.
+
+**Polling fallback.** If you don't want the daemon, pair this skill with
+the `loop` skill, e.g. `/loop 30s /transcript-spotter`. Each invocation
+only sees new rows because of the `processed_at` watermark.
 
 ## Audio → DB pipeline (macOS)
 
@@ -146,7 +154,10 @@ mkdir -p ~/.cache/whisper.cpp
 curl -L -o ~/.cache/whisper.cpp/ggml-base.en.bin \
   https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin
 
-# during a meeting
+# realtime mode — terminal A: start the daemon (it triggers `claude -p`)
+python3 scripts/spotter-daemon.py
+
+# realtime mode — terminal B: stream the mic into the daemon
 export TRANSCRIPT_SPEAKER=alice   # optional; tags every inserted row
 whisper-stream -m ~/.cache/whisper.cpp/ggml-base.en.bin \
                --step 500 --length 5000 -t 8 \
@@ -155,7 +166,13 @@ whisper-stream -m ~/.cache/whisper.cpp/ggml-base.en.bin \
 
 `ingest.py` strips whisper.cpp's bracketed timestamps (the
 `[HH:MM:SS.mmm --> HH:MM:SS.mmm]` shape only — non-timestamp brackets
-like `[laughter]` are kept) and inserts each non-empty line as a new
-`transcripts` row, attributing it to `$TRANSCRIPT_SPEAKER` when set. Any
-other source that emits plain-text lines on stdout (WhisperKit CLI,
-Apple's Speech framework, a remote ASR service) works the same way.
+like `[laughter]` are kept) and forwards each non-empty line as NDJSON
+(`{"text": "...", "speaker": "..."}`) to the daemon's Unix socket at
+`~/Library/Application Support/transcript-spotter/spotter.sock`. The
+daemon persists the row, debounces, then runs `claude -p` against this
+skill so opportunities land in the DB within a few seconds of speech.
+
+Any other source that emits plain-text lines on stdout (WhisperKit CLI,
+Apple's Speech framework, a remote ASR service) works the same way — pipe
+it through `ingest.py`. Or write a custom producer that connects to the
+socket directly and sends NDJSON.

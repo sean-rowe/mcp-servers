@@ -1,19 +1,28 @@
 #!/usr/bin/env python3
-"""Read transcript lines on stdin, insert into the spotter SQLite DB.
+"""Read transcript lines on stdin and forward them to the spotter daemon.
+
+The daemon (`scripts/spotter-daemon.py`) listens on a Unix socket, persists
+each line in the SQLite `transcripts` table, and triggers `claude -p` to
+run the transcript-spotter skill in near-real-time.
 
 Usage:
     whisper-stream -m model.bin ... | python3 ingest.py
     whisperkit-cli transcribe --stream ... | python3 ingest.py
+
+Env:
+    TRANSCRIPT_SPOTTER_SOCK   override socket path
+    TRANSCRIPT_SPEAKER        optional speaker tag attached to every line
 """
 
+import json
 import os
 import re
-import sqlite3
+import socket
 import sys
 from pathlib import Path
 
-DEFAULT_DB = Path.home() / "Library/Application Support/transcript-spotter/spotter.db"
-DB_PATH = Path(os.environ.get("TRANSCRIPT_SPOTTER_DB", DEFAULT_DB))
+DEFAULT_SOCK = Path.home() / "Library/Application Support/transcript-spotter/spotter.sock"
+SOCK_PATH = Path(os.environ.get("TRANSCRIPT_SPOTTER_SOCK", DEFAULT_SOCK))
 
 # whisper.cpp stream prepends "[HH:MM:SS.mmm --> HH:MM:SS.mmm]  " and uses ANSI.
 # Match only that exact shape so non-timestamp brackets like "[laughter]" survive.
@@ -31,33 +40,35 @@ def clean(line: str) -> str:
 
 
 def main() -> int:
-    if not DB_PATH.exists():
-        sys.stderr.write(f"DB not found at {DB_PATH}; run scripts/init.sh first.\n")
-        return 1
-
-    # Autocommit (per-row commit) is intentional: the spotter skill polls for
-    # unprocessed rows and we want each transcript line visible immediately.
-    # WAL + synchronous=NORMAL keeps the cost negligible at speech rates.
-    conn = sqlite3.connect(DB_PATH, isolation_level=None)
-    conn.execute("PRAGMA foreign_keys = ON;")
-    conn.execute("PRAGMA journal_mode = WAL;")
-    conn.execute("PRAGMA synchronous = NORMAL;")
-
     speaker = os.environ.get("TRANSCRIPT_SPEAKER")
 
+    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    try:
+        sock.connect(str(SOCK_PATH))
+    except (FileNotFoundError, ConnectionRefusedError) as e:
+        sys.stderr.write(
+            f"Cannot connect to spotter daemon at {SOCK_PATH}: {e}\n"
+            "Start the daemon first:  python3 scripts/spotter-daemon.py\n"
+        )
+        return 1
+
+    out = sock.makefile("wb")
     try:
         for raw in sys.stdin:
             text = clean(raw)
             if not text:
                 continue
-            conn.execute(
-                "INSERT INTO transcripts (text, speaker) VALUES (?, ?);",
-                (text, speaker),
-            )
+            payload = (json.dumps({"text": text, "speaker": speaker}) + "\n").encode("utf-8")
+            out.write(payload)
+            out.flush()
     except KeyboardInterrupt:
         pass
+    except BrokenPipeError:
+        sys.stderr.write("spotter daemon disconnected\n")
+        return 1
     finally:
-        conn.close()
+        out.close()
+        sock.close()
     return 0
 
 
